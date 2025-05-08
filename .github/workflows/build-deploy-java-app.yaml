@@ -49,8 +49,6 @@ jobs:
           file: ./myapp/Dockerfile
           push: true
           tags: ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }}
-          build-args: VER=${{ env.NEW_VERSION }}
-
      
       - name: Remove local Docker image
         run: |
