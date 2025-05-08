@@ -3,7 +3,7 @@ name: Build and Deploy Java app
 on:
   push:
     branches:
-      - work-flow-update
+      - workflow-update
 
 permissions:
   contents: write
