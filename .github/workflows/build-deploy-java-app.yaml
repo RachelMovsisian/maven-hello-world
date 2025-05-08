@@ -55,7 +55,7 @@ jobs:
           
       - name: Remove local Docker image (to force pull)
         run: |
-          docker rmi justme2024/hello-world:${{ env.NEW_VERSION }} || echo "Image not found locally"
+	  docker rmi ${DOCKER_HUB_USERNAME}/hello-world:${{ env.NEW_VERSION }} || echo "Image not found locally"
           
       - name: Run Docker Image (non-root)
         run: |
