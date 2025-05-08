@@ -12,6 +12,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     
+    env:
+      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -45,7 +48,7 @@ jobs:
           context: ./myapp
           file: ./myapp/Dockerfile
           push: false
-          tags: ${DOCKER_HUB_USERNAME}/hello-world:${{ env.NEW_VERSION }}
+          tags: ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }}
           build-args: VER=${{ env.NEW_VERSION }}
           
       - name: Login to Docker Hub
@@ -56,12 +59,13 @@ jobs:
           
       - name: Push Docker Image to Docker Hub
         run: |
-          docker push ${DOCKER_HUB_USERNAME}/hello-world:${{ env.NEW_VERSION }}
+          docker push ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }}
           
       - name: Remove local Docker image (to force pull)
         run: |
-          docker rmi ${DOCKER_HUB_USERNAME}/hello-world:${{ env.NEW_VERSION }} || echo "Image not found locally"
+          docker rmi ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }} || echo "Image not found locally"
           
       - name: Run Docker Image (non-root)
         run: |
-          docker run --rm --user 1000:1000 ${DOCKER_HUB_USERNAME}/hello-world:${{ env.NEW_VERSION }}
+          docker run --rm --user 1000:1000 ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }}
+
