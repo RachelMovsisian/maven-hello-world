@@ -28,7 +28,7 @@ jobs:
           mvn versions:set -DnewVersion=${new_version} -f myapp/pom.xml
           echo "NEW_VERSION=${new_version}" >> $GITHUB_ENV
           
-      - name: Commit version bump
+      - name: Commit new jar version
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
@@ -36,30 +36,25 @@ jobs:
           git commit -m "new jar version"
           git push origin workflow-update
           
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}     
+      
       - name: Build Docker Image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./myapp
           file: ./myapp/Dockerfile
-          push: false
+          push: true
           tags: ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }}
-          build-args: VER=${{ env.NEW_VERSION }}
-          
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          
-      - name: Push Docker Image to Docker Hub
-        run: |
-          docker push ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }}
-          
-      - name: Remove local Docker image (to force pull)
+     
+      - name: Remove local Docker image
         run: |
           docker rmi ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }} || echo "Image not found locally"
           
-      - name: Run Docker Image (non-root)
+      - name: Run Docker Image
         run: |
-          docker run --rm --user 1000:1000 ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }}
+          docker run --rm ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }}
 
