@@ -79,8 +79,16 @@ jobs:
         run: |
           docker push ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:latest
             
-      - name: Remove docker image if failed to run from Docker Hub
+      - name: Revert POM.xml in failure
         if: failure()
+        run: |
+          cp ./myapp/backup_pom.xml ./myapp/pom.xml
+          git add myapp/pom.xml
+          git commit -m "revert to previous jar version because of failure"
+          git push origin workflow-update
+      
+      - name: Remove docker image if failed to run from Docker Hub
+        if: steps.pull_img.outcome == 'failure' || steps.check_img.outcome == 'failure'
         run: |
           sleep 30
           docker run --rm curlimages/curl:7.86.0 curl -X DELETE \
