@@ -26,6 +26,12 @@ jobs:
         run: |
           docker build ./myapp -t ${{ env.IMAGE_NAME }}
 
+      - name: Create container for extracting pom.xml 
+        run: |
+          docker create --name temp ${{ env.IMAGE_NAME }}
+          docker cp temp:/app/pom.xml ./myapp/pom.xml
+          docker rm temp
+      
       - name: Get jar version from the extracted pom file
         run: |
           version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f myapp/pom.xml)
