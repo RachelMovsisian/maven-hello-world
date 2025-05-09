@@ -14,20 +14,45 @@ jobs:
     
     env:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-    
+      DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      IMAGE_NAME: hello-world
+      REPO_NAME: hello-world
+      
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        
+      - name: Build Docker Image
+        run: |
+          docker build ./myapp -t ${{ env.IMAGE_NAME }}
       
-      - name: Increase the Patch part of the jar version
+      - name: Create container for extracting pom.xml 
+        run: |
+          docker create --name temp ${{ env.IMAGE_NAME }}
+          docker cp temp:/app/pom.xml ./pom.xml
+          docker rm temp
+       
+      - name: Get jar version from the extracted pom file
         run: |
           version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f myapp/pom.xml)
-          echo "Current version: ${version}"
-          new_version=$(echo ${version} | awk -F'.' '{print $1"."$2"."$3+1}')
-          echo "New version: ${new_version}"
-          mvn versions:set -DnewVersion=${new_version} -f myapp/pom.xml
-          echo "NEW_VERSION=${new_version}" >> $GITHUB_ENV
-          
+          echo "JAR_VERSION=$version" >> $GITHUB_ENV
+
+      - name: Tag docker image 
+        run: |
+          docker tag ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:$JAR_VERSION
+          docker tag ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:latest
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKER_HUB_USERNAME }}
+          password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}  
+	   
+      - name: Push Docker images
+        run: |
+          docker push ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:$JAR_VERSION
+          docker push ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:latest
+    
       - name: Commit new jar version
         run: |
           git config --global user.name "GitHub Actions"
@@ -35,25 +60,12 @@ jobs:
           git add myapp/pom.xml
           git commit -m "new jar version"
           git push origin workflow-update
-          
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ env.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}     
-      
-      - name: Build Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./myapp
-          file: ./myapp/Dockerfile
-          push: true
-          tags: ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }}
-     
+             
       - name: Remove local Docker image
         run: |
-          docker rmi ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }} || echo "Image not found locally"
+          docker rmi ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:$JAR_VERSION
+          docker rmi ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:latest
           
       - name: Run Docker Image
         run: |
-          docker run --rm ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }}
+          docker run --rm ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:latest
