@@ -62,12 +62,12 @@ jobs:
         id: push_img
         run: |
           docker push ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:$JAR_VERSION
-          exit 1
           
       - name: Pull Docker image from Docker Hub
         id: pull_img
         run: |
           docker pull ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:$JAR_VERSION
+          exit 1
 
       - name: Run Docker Image
         id: check_img
