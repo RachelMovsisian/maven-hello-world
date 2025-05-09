@@ -57,4 +57,3 @@ jobs:
       - name: Run Docker Image
         run: |
           docker run --rm ${{ env.DOCKER_HUB_USERNAME }}/hello-world:${{ env.NEW_VERSION }}
-
