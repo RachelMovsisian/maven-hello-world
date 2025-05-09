@@ -82,6 +82,7 @@ jobs:
       - name: Remove docker image if failed to run from Docker Hub
         if: failure()
         run: |
+          sleep 30
           curl -s -X DELETE \
             -u ${{ env.DOCKER_HUB_USERNAME }}:${{ env.DOCKER_HUB_ACCESS_TOKEN }} \
             "https://hub.docker.com/v2/repositories/${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}/tags/${{ env.JAR_VERSION }}"
