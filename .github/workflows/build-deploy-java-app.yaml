@@ -88,7 +88,7 @@ jobs:
           git push origin workflow-update
       
       - name: Remove docker image if failed to run from Docker Hub
-        if: steps.pull_img.outcome == 'failure' || steps.check_img.outcome == 'failure'
+        if: steps.pull_img.conclusion == 'failure' || steps.check_img.conclusion == 'failure'
         run: |
           sleep 30
           docker run --rm curlimages/curl:7.86.0 curl -X DELETE \
