@@ -34,7 +34,7 @@ jobs:
       
       - name: Get jar version from the extracted pom file
         run: |
-          version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f ./pom.xml)
+          version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f myapp/pom.xml)
           echo "JAR_VERSION=$version" >> $GITHUB_ENV
 
       - name: Tag docker image 
