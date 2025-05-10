@@ -1,147 +1,64 @@
-# A simple, minimal Maven example: hello world
+# CI/CD Pipeline for Hello World Java App
 
-To create the files in this git repo we've already run `mvn archetype:generate` from http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html
-    
-    mvn archetype:generate -DgroupId=com.myapp.app -DartifactId=myapp -DarchetypeArtifactId=maven-archetype-quickstart -DarchetypeVersion=1.4 -DinteractiveMode=false
+An implementation of CI/CD pipeline using GitHub Actions, Dockerfile, and Docker Hub for the "maven-hello-world" project, forked from: [https://github.com/ido83/maven-hello-world](https://github.com/ido83/maven-hello-world)
 
-Now, to print "Hello World!", type either...
+## Overview
+This project demonstrates a complete automated workflow for building, versioning, and delivering a Java application using:
 
-    cd myapp
-    mvn compile
-    java -cp target/classes com.myapp.app.App
+- **GitHub Actions** for CI/CD automation
+- **Docker multi-stage builds** for efficient image creation, with an emphasis on performing as many steps as possible within the multi-stage Dockerfile.
 
-or...
+The CI/CD pipeline automatically performs the following steps, divided between the Dockerfile and the GitHub Actions workflow:
 
-    cd myapp
-    mvn package
-    java -cp target/myapp-1.0-SNAPSHOT.jar com.myapp.app.App
+### Steps handled within the Dockerfile:
+* Increase the patch part of the jar version automatically using Maven's versioning plugin.
+* Compiles and packages the application into a `.jar` artifact using Maven.
+* Creates a non-root user "app" for running the application and sets ownership of the `/app` directory for improved security. 
 
-Running `mvn clean` will get us back to only the source Java and the `pom.xml`:
+### Steps handled within the GitHub Actions workflow:
+* Builds the Docker image based on the Dockerfile and tags it with the JAR version and "latest".
+* Pushes the Docker image to Docker Hub.
+* Verifies the image by pulling it from Docker Hub and running it.
+* Handles errors by restoring the previous `pom.xml` file and removing the faulty Docker image from Docker Hub.
 
-    murphy:myapp pdurbin$ mvn clean --quiet
-    murphy:myapp pdurbin$ ack -a -f
-    pom.xml
-    src/main/java/com/myapp/app/App.java
-    src/test/java/com/myapp/app/AppTest.java
-
-Running `mvn compile` produces a class file:
-
-    murphy:myapp pdurbin$ mvn compile --quiet
-    murphy:myapp pdurbin$ ack -a -f
-    pom.xml
-    src/main/java/com/myapp/app/App.java
-    src/test/java/com/myapp/app/AppTest.java
-    target/classes/com/myapp/app/App.class
-    murphy:myapp pdurbin$ 
-    murphy:myapp pdurbin$ java -cp target/classes com.myapp.app.App
-    Hello World!
-
-Running `mvn package` does a compile and creates the target directory, including a jar:
-
-    murphy:myapp pdurbin$ mvn clean --quiet
-    murphy:myapp pdurbin$ mvn package > /dev/null
-    murphy:myapp pdurbin$ ack -a -f
-    pom.xml
-    src/main/java/com/myapp/app/App.java
-    src/test/java/com/myapp/app/AppTest.java
-    target/classes/com/myapp/app/App.class
-    target/maven-archiver/pom.properties
-    target/myapp-1.0-SNAPSHOT.jar
-    target/surefire-reports/com.myapp.app.AppTest.txt
-    target/surefire-reports/TEST-com.myapp.app.AppTest.xml
-    target/test-classes/com/myapp/app/AppTest.class
-    murphy:myapp pdurbin$ 
-    murphy:myapp pdurbin$ java -cp target/myapp-1.0-SNAPSHOT.jar com.myapp.app.App
-    Hello World!
-
-Running `mvn clean compile exec:java` requires https://www.mojohaus.org/exec-maven-plugin/
-
-Running `java -jar target/myapp-1.0-SNAPSHOT.jar` requires http://maven.apache.org/plugins/maven-shade-plugin/
-
-# Runnable Jar:
-JAR Plugin
-The Maven’s jar plugin will create jar file and we need to define the main class that will get executed when we run the jar file.
+## Project Structure
 ```
-<plugin>
-  <artifactId>maven-jar-plugin</artifactId>
-  <version>3.0.2</version>
-  <configuration>
-    <archive>
-      <manifest>
-        <addClasspath>true</addClasspath>
-        <mainClass>com.myapp.App</mainClass>
-      </manifest>
-    </archive>
-  </configuration>
-</plugin>
+├── myapp
+│   ├── Dockerfile # Multi-stage Docker build file
+│   ├── pom.xml
+│   └── src
+│       ├── main
+│       │   └── java
+│       │       └── com
+│       │           └── myapp
+│       │               └── App.java
+├── .github
+│   └── workflows
+│       ├── build-deploy-java-app.yaml  # GitHub Actions workflow
 ```
 
+## Getting Started
 
-# Folder tree before package:
-```
-├── pom.xml
-└── src
-    ├── main
-    │   └── java
-    │       └── com
-    │           └── myapp
-    │               └── app
-    │                   └── App.java
-    └── test
-        └── java
-            └── com
-                └── myapp
-                    └── app
-                        └── AppTest.java
+### Prerequisites
+* GitHub account
+* Docker Hub account
 
-```
-# Folder tree after package:
-```
+### Setting up secrets
+1. Create a new repository in Docker Hub named "hello-world".
+   The repository and the image name can be customized by modifying environment variables in the `build-deploy-java-app.yaml` file.
+2. Create a Docker Hub access token with permission to read, write, and delete.
 
-.
-├── pom.xml
-├── src
-│   ├── main
-│   │   └── java
-│   │       └── com
-│   │           └── myapp
-│   │               └── app
-│   │                   └── App.java
-│   └── test
-│       └── java
-│           └── com
-│               └── myapp
-│                   └── app
-│                       └── AppTest.java
-└── target
-    ├── classes
-    │   └── com
-    │       └── myapp
-    │           └── app
-    │               └── App.class
-    ├── generated-sources
-    │   └── annotations
-    ├── generated-test-sources
-    │   └── test-annotations
-    ├── maven-archiver
-    │   └── pom.properties
-    ├── maven-status
-    │   └── maven-compiler-plugin
-    │       ├── compile
-    │       │   └── default-compile
-    │       │       ├── createdFiles.lst
-    │       │       └── inputFiles.lst
-    │       └── testCompile
-    │           └── default-testCompile
-    │               ├── createdFiles.lst
-    │               └── inputFiles.lst
-    ├── myapp-1.0-SNAPSHOT.jar
-    ├── surefire-reports
-    │   ├── com.myapp.app.AppTest.txt
-    │   └── TEST-com.myapp.app.AppTest.xml
-    └── test-classes
-        └── com
-            └── myapp
-                └── app
-                    └── AppTest.class
-```
+### Running the Pipeline
+1. Fork the repository.
+2. Add Docker Hub username and access token to the GitHub repository secrets:
+   - `DOCKER_HUB_USERNAME`: Docker Hub username
+   - `DOCKER_HUB_ACCESS_TOKEN`: Docker Hub access token
+3. If the default branch of your repository is not `main`, update the `TARGET_BRANCH` environment variable in `build-deploy-java-app.yaml` file.
+4. The pipeline will be triggered automatically after a `push` to the target branch.
+
+## Changes in Forked Repository
+* Added my name to "Hello World" message output of the app.
+* In `pom.xml` file:
+  - Set JAR version to `1.0.0`
+  - Added repository link.
+  - Updated Java version to `17` for security reasons.
