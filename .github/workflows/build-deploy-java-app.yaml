@@ -4,10 +4,10 @@ name: Build and Deploy Java app
 on:
   pull_request:
     branches:
-      - workflow-update
+      - master
   push:
     branches:
-      - workflow-update
+      - master
 
 permissions:
   contents: write
@@ -57,7 +57,7 @@ jobs:
           git config --global user.email "actions@github.com"
           git add myapp/pom.xml
           git commit -m "new jar version"
-          git push origin workflow-update
+          git push origin master
       - name: Push Docker image to Docker Hub
         id: push_img
         run: |
