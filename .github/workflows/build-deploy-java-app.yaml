@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - workflow-update
+  push:
+    branches:
+      - workflow-update
 
 permissions:
   contents: write
