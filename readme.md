@@ -53,7 +53,7 @@ The CI/CD pipeline automatically performs the following steps, divided between t
 2. Add Docker Hub username and access token to the GitHub repository secrets:
    - `DOCKER_HUB_USERNAME`: Docker Hub username
    - `DOCKER_HUB_ACCESS_TOKEN`: Docker Hub access token
-3. If the default branch of your repository is not `main`, update the `TARGET_BRANCH` environment variable in `build-deploy-java-app.yaml` file.
+3. If the default branch of your repository is not `master`, update the `TARGET_BRANCH` environment variable in `build-deploy-java-app.yaml` file.
 4. The pipeline will be triggered automatically after a `push` to the target branch.
 
 ## Changes in Forked Repository
