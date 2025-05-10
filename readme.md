@@ -1,6 +1,6 @@
 # CI/CD Pipeline for Hello World Java App
 
-An implementation of CI/CD pipeline using GitHub Actions, Dockerfile, and Docker Hub for the "maven-hello-world" project, forked from: [https://github.com/ido83/maven-hello-world](https://github.com/ido83/maven-hello-world)
+An implementation of CI/CD pipeline using GitHub Actions, Dockerfile, and Docker Hub for the "maven-hello-world" project. forked from: [https://github.com/ido83/maven-hello-world](https://github.com/ido83/maven-hello-world)
 
 ## Overview
 This project demonstrates a complete automated workflow for building, versioning, and delivering a Java application using:
