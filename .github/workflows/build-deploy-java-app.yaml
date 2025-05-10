@@ -84,6 +84,7 @@ jobs:
         if: success() && steps.check_img.conclusion == 'success'
         run: |
           docker push ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:latest
+          exit 1
 
       - name: Revert POM.xml in failure
         if: failure() && (steps.push_img.outcome == 'failure' || steps.pull_img.outcome == 'failure' || steps.check_img.outcome == 'failure')
@@ -99,3 +100,4 @@ jobs:
             docker run --rm curlimages/curl:7.86.0 curl -X DELETE \
               -H "Authorization: Bearer ${{ env.DOCKER_HUB_ACCESS_TOKEN }}" \
               "https://hub.docker.com/v2/repositories/${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}/tags/$JAR_VERSION/"
+
