@@ -1,6 +1,4 @@
-
 name: Build and Deploy Java app
-
 on:
   pull_request:
     branches:
@@ -8,28 +6,27 @@ on:
   push:
     branches:
       - workflow-update
-
 permissions:
   contents: write
-
 jobs:
   build:
     runs-on: ubuntu-22.04
-
     env:
       DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
       DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
       IMAGE_NAME: hello-world
       REPO_NAME: hello-world
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
       - name: Build Docker Image
+        id: docker_build
         run: |
           docker build ./myapp -t ${{ env.IMAGE_NAME }}
+      
       - name: Backup current pom.xml and create container for extracting new version of pom.xml 
+        id: backup_pom
         run: |
           cp ./myapp/pom.xml ./myapp/backup_pom.xml
           docker create --name temp ${{ env.IMAGE_NAME }}
@@ -37,19 +34,24 @@ jobs:
           docker rm temp
       
       - name: Get jar version from the extracted pom file
+        id: get_version
         run: |
           version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f myapp/pom.xml)
           echo "JAR_VERSION=$version" >> $GITHUB_ENV
+      
       - name: Tag docker image 
+        id: tag_image
         run: |
           docker tag ${{ env.IMAGE_NAME }} ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:$JAR_VERSION
           docker tag ${{ env.IMAGE_NAME }} ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:latest
+      
       - name: Login to Docker Hub
+        id: docker_login
         uses: docker/login-action@v3
         with:
           username: ${{ env.DOCKER_HUB_USERNAME }}
           password: ${{ env.DOCKER_HUB_ACCESS_TOKEN }}
-
+      
       - name: Commit new jar version
         id: commit_pom
         run: |
@@ -58,6 +60,7 @@ jobs:
           git add myapp/pom.xml
           git commit -m "new jar version"
           git push origin workflow-update
+      
       - name: Push Docker image to Docker Hub
         id: push_img
         run: |
@@ -67,6 +70,7 @@ jobs:
         id: pull_img
         run: |
           docker pull ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:$JAR_VERSION
+      
       - name: Run Docker Image
         id: check_img
         run: |
@@ -78,13 +82,17 @@ jobs:
           docker push ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:latest
             
       - name: Revert POM.xml in failure
-        if: failure()
+        if: failure() && (steps.push_img.outcome == 'failure' || steps.pull_img.outcome == 'failure' || steps.check_img.outcome == 'failure')
+        continue-on-error: true
         run: |
           cp ./myapp/backup_pom.xml ./myapp/pom.xml
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
           git add myapp/pom.xml
           git commit -m "revert to previous jar version because of failure"
           git push origin workflow-update
-          if [[ "${{ steps.pull_img.conclusion }}" == "failure" || "${{ steps.check_img.conclusion }}" == "failure" ]]; then
+          if [[ "${{ steps.push_img.outcome }}" == "success" && ("${{ steps.pull_img.outcome }}" == "failure" || "${{ steps.check_img.outcome }}" == "failure") ]]; then
             docker run --rm curlimages/curl:7.86.0 curl -X DELETE \
               -H "Authorization: Bearer ${{ env.DOCKER_HUB_ACCESS_TOKEN }}" \
               "https://hub.docker.com/v2/repositories/${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}/tags/$JAR_VERSION/"
+          fi
