@@ -1,9 +1,12 @@
 name: Build and Deploy Java app
 
 on:
-  push:
+  pull_request:
     branches:
       - workflow-update
+  push:
+    branches:
+      - workflow-update 
 
 permissions:
   contents: write
