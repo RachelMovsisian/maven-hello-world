@@ -9,7 +9,7 @@ on:
       - '**'
 
 env:
-  TARGET_BRANCH: workflow-update
+  TARGET_BRANCH: master
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
   IMAGE_NAME: hello-world
