@@ -4,7 +4,7 @@ WORKDIR /app
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
-# Increase the patch part of the jar file
+# Increase the patch part of the JAR file
 FROM maven:3.9.9-eclipse-temurin-17-alpine AS patch
 WORKDIR /app
 COPY --from=dependencies /root/.m2 /root/.m2
