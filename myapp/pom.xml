@@ -6,7 +6,7 @@
 
   <groupId>com.myapp</groupId>
   <artifactId>myapp</artifactId>
-  <version>1.0.12</version>
+  <version>1.0.13</version>
 
   <name>myapp</name>
   <url>https://github.com/RachelMovsisian/maven-hello-world.git</url>
