@@ -3,24 +3,25 @@ name: Build and Deploy Java app
 on:
   pull_request:
     branches:
-      - workflow-update
+      - '**'
   push:
     branches:
-      - workflow-update
+      - '**'
+
+env:
+  TARGET_BRANCH: workflow-update
+  DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+  DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+  IMAGE_NAME: hello-world
+  REPO_NAME: hello-world
 
 permissions:
   contents: write
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/workflow-update'
     runs-on: ubuntu-22.04
-
-    env:
-      DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-      DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-      IMAGE_NAME: hello-world
-      REPO_NAME: hello-world
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -59,7 +60,7 @@ jobs:
           git config --global user.email "actions@github.com"
           git add myapp/pom.xml
           git commit -m "new jar version"
-          git push origin workflow-update
+          git push origin ${{ github.ref_name }}
 
       - name: Push Docker image to Docker Hub
         id: push_img
@@ -87,7 +88,7 @@ jobs:
           cp ./myapp/backup_pom.xml ./myapp/pom.xml
           git add myapp/pom.xml
           git commit -m "revert to previous jar version because of failure"
-          git push origin workflow-update
+          git push origin ${{ github.ref_name }}
           if [[ "${{ steps.pull_img.conclusion }}" == "failure" || "${{ steps.check_img.conclusion }}" == "failure" ]]; then
             docker run --rm curlimages/curl:7.86.0 curl -X DELETE \
               -H "Authorization: Bearer ${{ env.DOCKER_HUB_ACCESS_TOKEN }}" \
