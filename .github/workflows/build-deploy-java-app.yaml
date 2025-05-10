@@ -6,8 +6,7 @@ on:
       - workflow-update
 
 permissions:
-  contents: write
-f
+
 jobs:
   build:
     runs-on: ubuntu-22.04
