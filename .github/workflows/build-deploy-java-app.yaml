@@ -81,7 +81,7 @@ jobs:
 
       - name: Push image as latest
         id: push_latest
-        if: success() && steps.check_img.conclusion == 'success'
+        if: success() && steps.check_img.outcome == 'success'
         run: |
           docker push ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:latest
           exit 1
