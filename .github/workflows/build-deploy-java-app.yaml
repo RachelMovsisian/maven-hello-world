@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   build:
-    if: github.ref == 'refs/heads/${{ TARGET_BRANCH}}'
+    if: github.ref == 'refs/heads/${{ env.TARGET_BRANCH}}'
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
