@@ -65,7 +65,6 @@ jobs:
         id: push_img
         run: |
           docker push ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:$JAR_VERSION
-          exit 1
           
       - name: Pull Docker image from Docker Hub
         id: pull_img
@@ -78,9 +77,11 @@ jobs:
           docker run --rm ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:$JAR_VERSION
       
       - name: Push image as latest
-        if: steps.check_img.outcome == 'success'
+        id: push_latest
+	if: steps.check_img.outcome == 'success'
         run: |
           docker push ${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:latest
+          exit 1
             
       - name: Revert POM.xml in failure
         if: failure() && (steps.push_img.outcome == 'failure' || steps.pull_img.outcome == 'failure' || steps.check_img.outcome == 'failure')
@@ -92,7 +93,7 @@ jobs:
           git add myapp/pom.xml
           git commit -m "revert to previous jar version because of failure"
           git push origin workflow-update
-          if [[ "${{ steps.push_img.outcome }}" == "success" && ("${{ steps.pull_img.outcome }}" == "failure" || "${{ steps.check_img.outcome }}" == "failure") ]]; then
+          if [[ "${{ steps.push_img.outcome }}" == "success" && ("${{ steps.pull_img.outcome }}" == "failure" || "${{ steps.check_img.outcome }}" == "failure") || "${{ steps.push_latest.outcome }}" == "failure") ]]; then
             docker run --rm curlimages/curl:7.86.0 curl -X DELETE \
               -H "Authorization: Bearer ${{ env.DOCKER_HUB_ACCESS_TOKEN }}" \
               "https://hub.docker.com/v2/repositories/${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}/tags/$JAR_VERSION/"
