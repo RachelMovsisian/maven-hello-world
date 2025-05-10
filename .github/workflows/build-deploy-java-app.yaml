@@ -87,7 +87,7 @@ jobs:
           exit 1
 
       - name: Revert POM.xml in failure
-        if: failure() && (steps.push_img.outcome == 'failure' || steps.pull_img.outcome == 'failure' || steps.check_img.outcome == 'failure')
+        if: failure() && (steps.push_img.outcome == 'failure' || steps.pull_img.outcome == 'failure' || steps.check_img.outcome == 'failure' || steps.push_latest.outcome == 'failure')
         continue-on-error: true
         run: |
           cp ./myapp/backup_pom.xml ./myapp/pom.xml
@@ -99,5 +99,5 @@ jobs:
           if [[ "${{ steps.push_img.outcome }}" == "success" && ("${{ steps.pull_img.outcome }}" == "failure" || "${{ steps.check_img.outcome }}" == "failure") || "${{ steps.push_latest.outcome }}" == "failure" ]]; then
             docker run --rm curlimages/curl:7.86.0 curl -X DELETE \
               -H "Authorization: Bearer ${{ env.DOCKER_HUB_ACCESS_TOKEN }}" \
-              "https://hub.docker.com/v2/repositories/${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}/tags/$JAR_VERSION/"
+              "https://hub.docker.com/v2/repositories/${{ env.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}/tags/$JAR_VERSION/" fi
 
