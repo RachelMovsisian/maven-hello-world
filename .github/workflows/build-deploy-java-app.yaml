@@ -6,6 +6,7 @@ on:
       - workflow-update
 
 permissions:
+  contents: write
 
 jobs:
   build:
