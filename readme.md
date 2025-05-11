@@ -75,6 +75,9 @@ docker build -t myapp . && docker run myapp
 
 ### Method 3: Using GitHub Actions and Docker Hub
 
+**Prerequisites:**
+Docker
+
 1. Push your changes to the master branch:
    ```
    git checkout master
