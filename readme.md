@@ -1,31 +1,25 @@
-# CI/CD Pipeline for Hello World Java App
-
-An implementation of a CI/CD pipeline using GitHub Actions, Dockerfile, and Docker Hub for the "maven-hello-world" project.
-Forked from: [https://github.com/ido83/maven-hello-world](https://github.com/ido83/maven-hello-world)
+# A simple, minimal Maven example: hello world
 
 ## Overview
-This project demonstrates a complete automated workflow for building, versioning, and delivering a Java application using:
+This project demonstrates a complete automated workflow for building, versioning, and delivering the Java application using:
 
 - **GitHub Actions** for CI/CD automation
-- **Docker multi-stage builds** for efficient image creation, with an emphasis on performing as many steps as possible within the multi-stage Dockerfile.
+- **Docker multi-stage builds** for efficient image creation.
 
 The CI/CD pipeline automatically performs the following steps, divided between the Dockerfile and the GitHub Actions workflow:
 
 ### Steps handled within the [Dockerfile](./myapp/Dockerfile):
-* Increase the patch part of the JAR version automatically using Maven's versioning plugin.
-* Compile and package the application into a `.jar` artifact using Maven.
-* Create a non-root user "app" for running the application and set ownership of the `/app` directory for improved security. 
+* Increase the patch part of the JAR version automatically.
+* Package the application into artifact. 
 
 ### Steps handled within the [GitHub Actions workflow](.github/workflows/build-deploy-java-app.yaml):
-* Build the Docker image based on the Dockerfile and tag it with the JAR version and "latest".
-* Push the Docker image to Docker Hub.
-* Verify the image by pulling it from Docker Hub and running it.
-* Handle errors by restoring the previous `pom.xml` file and removing the faulty Docker image from Docker Hub.
+* Build the Docker image based on the Dockerfile and update the JAR version in pom.xml file.
+* Push the Docker image to Docker Hub with JAR version and "latest" tags.
 
 ## Project Structure
 ```
 ├── myapp
-│   ├── Dockerfile # Multi-stage Docker build file
+│   ├── Dockerfile
 │   ├── pom.xml
 │   └── src
 │       ├── main
@@ -35,35 +29,63 @@ The CI/CD pipeline automatically performs the following steps, divided between t
 │       │               └── App.java
 ├── .github
 │   └── workflows
-│       └── build-deploy-java-app.yaml  # GitHub Actions workflow
+│       └── build-deploy-java-app.yaml
+```
+## Running the Application
+
+You can run this application in several ways:
+
+### Method 1: Using Maven Directly
+
+**Prerequisites:**
+JDK 17 or newer
+Maven 3.8.1 or newer
+
+**Compile and run directly from classes:**
+```
+cd myapp
+mvn compile
+java -cp target/classes com.myapp.App
 ```
 
-## Getting Started
+OR
 
-### Prerequisites
-* GitHub account 
-* Docker Hub account 
+**Package as JAR and run:**
+```
+cd myapp
+mvn package
+java -cp target/myapp-1.0.0.jar com.myapp.App
+```
 
-### Setting up secrets
-1. Create a new repository in Docker Hub named `hello-world`.
-   The repository and image name can be customized by modifying environment variables in the workflow file.
-2. Create a Docker Hub access token with permission to read, write, and delete.
+**Clean up build artifacts:**
+```
+mvn clean
+```
+This will remove the `target` directory, leaving only the source Java files and pom.xml.
 
-### Running the Pipeline
-1. Fork the repository.
-2. Add the following secrets to your GitHub repository:
-   - `DOCKER_HUB_USERNAME`: Docker Hub username
-   - `DOCKER_HUB_ACCESS_TOKEN`: Docker Hub access token
-3. The pipeline will be triggered automatically after a `push` to the target branch.
+### Method 2: Using Docker Locally
 
-## Changes in Forked Repository
-* Added my name to the "Hello World" message output of the app.
-* In [`pom.xml`](./myapp/pom.xml) file:
-  - Set JAR version to `1.0.0`
-  - Added repository link.
-  - Updated Java version to `17` for security reasons.
+**Prerequisites:**
+Docker
 
----
+**Build and run the Docker image:**
+```
+cd myapp
+docker build -t myapp . && docker run myapp
+```
 
-**Example Docker image built by the pipeline:** 
-[https://hub.docker.com/repository/docker/justme2024/hello-world/](https://hub.docker.com/repository/docker/justme2024/hello-world/)
+### Method 3: Using GitHub Actions and Docker Hub
+
+1. Push your changes to the master branch:
+   ```
+   git checkout master
+   git add .
+   git commit -m "Your message"
+   git push origin master
+   ```
+   or by opening pull request for merge your branch into master.
+
+2. Download and run the published Docker image from anywhere:
+   ```
+   docker run justme2024/hello-world:latest
+   ```
