@@ -38,8 +38,7 @@ You can run this application in several ways:
 ### Method 1: Using Maven Directly
 
 **Prerequisites:**
-JDK 17 or newer
-Maven 3.8.1 or newer
+JDK 17 or newer, Maven 3.8.1 or newer
 
 **Compile and run directly from classes:**
 ```
@@ -54,7 +53,7 @@ OR
 ```
 cd myapp
 mvn package
-java -cp target/myapp-1.0.0.jar com.myapp.App
+java -cp target/myapp-<version>.jar com.myapp.App
 ```
 
 **Clean up build artifacts:**
@@ -83,7 +82,7 @@ docker build -t myapp . && docker run myapp
    git commit -m "Your message"
    git push origin master
    ```
-   or by opening pull request for merge your branch into master.
+   or by opening a pull request to merge your branch into the master branch.
 
 2. Download and run the published Docker image from anywhere:
    ```
