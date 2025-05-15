@@ -1,4 +1,4 @@
-# A simple, minimal Maven example: hello world
+# A not simple, minimal Maven example: hello world
 
 ## Overview
 This project demonstrates a complete automated workflow for building, versioning, and delivering the Java application using:
