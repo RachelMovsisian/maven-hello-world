@@ -71,6 +71,7 @@ Docker
 ```
 cd myapp
 docker build -t myapp . && docker run myapp
+cd ../
 ```
 
 ### Method 3: Using GitHub Actions and Docker Hub
