@@ -29,3 +29,12 @@ stages:
         dockerfile: '$(Build.SourcesDirectory)/myapp/Dockerfile'
         tags: |
           $(tag)
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'docker_login'
+        command: 'login'
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'docker_login'
+        repository: 'justme2024/azure_maven'
+        command: 'push'
