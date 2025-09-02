@@ -25,4 +25,11 @@ stages:
     - script: |
         echo "Building Docker image..."
         docker build ./myapp -t $(IMAGE_NAME)
-     
+      displayName: Docker Build
+    
+    - script: |
+        cp ./myapp/pom.xml ./myapp/backup_pom.xml
+        docker create --name temp $(IMAGE_NAME)
+        docker cp temp:/app/pom.xml ./myapp/pom.xml
+        docker rm temp
+      displayName: backup_pom
