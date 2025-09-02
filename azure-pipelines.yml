@@ -8,9 +8,6 @@ trigger:
 resources:
 - repo: self
 
-variables:
-  tag: '$(Build.BuildId)'
-
 stages:
 - stage: Build
   displayName: Build image
@@ -33,3 +30,14 @@ stages:
         docker cp temp:/app/pom.xml ./myapp/pom.xml
         docker rm temp
       displayName: backup_pom
+
+    - script: |
+        version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f myapp/pom.xml)
+        echo "Detected JAR version: $version"
+        echo "##vso[task.setvariable variable=JAR_VERSION]$version"
+      displayName: get_version
+
+    - script: |
+        docker tag $(IMAGE_NAME) $(DOCKER_HUB_USERNAME)/$(REPO_NAME):$(JAR_VERSION)
+        docker tag $(IMAGE_NAME) $(DOCKER_HUB_USERNAME)/$(REPO_NAME):latest
+      displayName:  tag_image
