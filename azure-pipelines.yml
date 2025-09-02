@@ -22,9 +22,7 @@ stages:
       demands:
         - Agent.Name -equals R
     steps:
-    - task: Docker@2
-      inputs:
-        containerRegistry: 'docker_login'
-        repository: 'justme2024/azure_maven'
-        command: 'buildAndPush'
-        Dockerfile: '**/Dockerfile'
+    - script: |
+        echo "Building Docker image..."
+        docker build ./myapp -t $(IMAGE_NAME)
+     
