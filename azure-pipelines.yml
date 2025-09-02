@@ -41,3 +41,14 @@ stages:
         docker tag $(IMAGE_NAME) $(DOCKER_HUB_USERNAME)/$(REPO_NAME):$(JAR_VERSION)
         docker tag $(IMAGE_NAME) $(DOCKER_HUB_USERNAME)/$(REPO_NAME):latest
       displayName:  tag_image
+
+    - task: Docker@2
+      inputs:
+        containerRegistry: 'docker_login'
+        command: 'login'
+        addPipelineData: false
+        addBaseImageData: false
+    
+    - script: |
+        docker push $(DOCKER_HUB_USERNAME)/$(REPO_NAME):$(JAR_VERSION)
+      displayName: push_image
