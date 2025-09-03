@@ -50,5 +50,5 @@ stages:
         addBaseImageData: false
     
     - script: |
-        docker push $(DOCKER_HUB_USERNAME)/$(REPO_NAME):$(JAR_VERSION)
+        echo "$(DOCKER_HUB_USERNAME)/$(REPO_NAME):$(JAR_VERSION)"
       displayName: push_image
