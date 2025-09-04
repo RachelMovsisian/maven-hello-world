@@ -35,7 +35,8 @@ stages:
     - script: |
         mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f myapp/pom.xml > version.txt
         set /p PROJECT_VERSION=<version.txt
-        echo %PROJECT_VERSION%
+        echo Project Version is %PROJECT_VERSION%
+        echo ##vso[task.setvariable variable=PROJECT_VERSION]%PROJECT_VERSION%
       displayName: get_version
 
     - script: |
