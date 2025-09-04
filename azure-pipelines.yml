@@ -32,9 +32,9 @@ stages:
       displayName: backup_pom
 
     - script: |
-        for /f "delims=" %%v in ('mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f myapp/pom.xml') do set version=%%v
-        echo "Detected JAR version: %version%
-        echo "##vso[task.setvariable variable=JAR_VERSION]%version%"
+        mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f myapp/pom.xml > version.txt
+        set /p PROJECT_VERSION=<version.txt
+        echo %PROJECT_VERSION%
       displayName: get_version
 
     - script: |
