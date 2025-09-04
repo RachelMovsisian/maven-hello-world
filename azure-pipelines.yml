@@ -19,6 +19,7 @@ stages:
       demands:
         - Agent.Name -equals R
     steps:
+    - task: CmdLine@2
     - script: |
         echo "Building Docker image..."
         docker build ./myapp -t $(IMAGE_NAME)
