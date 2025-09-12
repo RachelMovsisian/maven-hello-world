@@ -17,7 +17,8 @@ stages:
     steps:
 
     - powershell: |
-        $version = mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f myapp/pom.xml
+        $version = mvn help:evaluate "-Dexpression=project.version" -q -DforceStdout -f myapp/pom.xml
+        $version = $version.Trim()
         Write-Host "Detected JAR version: $version"
         Write-Host "##vso[task.setvariable variable=JAR_VERSION]$version"
       displayName: "Set JAR_VERSION variable (Windows)"
