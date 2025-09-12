@@ -15,14 +15,6 @@ stages:
       demands:
         - Agent.Name -equals R
     steps:
-    - task: Maven@4
-      displayName: "Get JAR version"
-      inputs:
-        mavenPomFile: "myapp/pom.xml"
-        goals: "help:evaluate"
-        options: "-Dexpression=project.version -q -DforceStdout"
-        publishJUnitResults: false
-      continueOnError: false
 
     - powershell: |
         $version = mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f myapp/pom.xml
