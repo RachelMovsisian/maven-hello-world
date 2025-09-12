@@ -32,12 +32,12 @@ stages:
         docker rm temp
       displayName: backup_pom
 
-    - script: |
-        mvn help:evaluate "-Dexpression=project.version" -q -DforceStdout -f myapp/pom.xml > version.txt
-        set /p PROJECT_VERSION=<version.txt
-        echo Project Version is %PROJECT_VERSION%
-        echo ##vso[task.setvariable variable=PROJECT_VERSION]%PROJECT_VERSION%
-      displayName: get_version
+    - powershell: |
+        $version = mvn help:evaluate "-Dexpression=project.version" -q -DforceStdout -f myapp/pom.xml
+        $version = $version.Trim()
+        Write-Host "Detected JAR version: $version"
+        Write-Host "##vso[task.setvariable variable=JAR_VERSION]$version"
+      displayName: "Set JAR_VERSION variable (Windows)"
 
     - script: |
         docker tag $(IMAGE_NAME) $(DOCKER_HUB_USERNAME)/$(REPO_NAME):$(JAR_VERSION)
