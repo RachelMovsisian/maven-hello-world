@@ -45,7 +45,11 @@ stages:
       displayName:  tag_image
 
     - task: Docker@2
+      displayName: "Push Docker image"
       inputs:
         containerRegistry: 'docker_login'
-        repository: 'justme2024/azure_maven'
+        repository: '$(DOCKER_HUB_USERNAME)/$(REPO_NAME)'
         command: 'push'
+        tags: |
+          $(JAR_VERSION)
+          latest
