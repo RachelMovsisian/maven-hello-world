@@ -47,10 +47,5 @@ stages:
     - task: Docker@2
       inputs:
         containerRegistry: 'docker_login'
-        command: 'login'
-        addPipelineData: false
-        addBaseImageData: false
-    
-    - script: |
-        docker push
-      displayName: push_image
+        repository: 'justme2024/azure_maven'
+        command: 'push'
