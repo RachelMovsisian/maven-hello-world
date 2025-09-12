@@ -53,3 +53,7 @@ stages:
         tags: |
           $(JAR_VERSION)
           latest
+
+    - script: 
+       docker run --rm $(DOCKER_HUB_USERNAME)/$(REPO_NAME):$(JAR_VERSION)
+      displayName: "check_img"
