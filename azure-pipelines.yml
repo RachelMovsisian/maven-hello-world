@@ -1,7 +1,3 @@
-# Docker
-# Build a Docker image
-# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
-
 trigger:
 - azure-pipelines
 
@@ -19,14 +15,21 @@ stages:
       demands:
         - Agent.Name -equals R
     steps:
+    - task: Maven@4
+      displayName: "Get JAR version"
+      inputs:
+        mavenPomFile: "myapp/pom.xml"
+        goals: "help:evaluate"
+        options: "-Dexpression=project.version -q -DforceStdout"
+        publishJUnitResults: false
+      continueOnError: false
+
+    - powershell: |
+        $version = mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f myapp/pom.xml
+        Write-Host "Detected JAR version: $version"
+        Write-Host "##vso[task.setvariable variable=JAR_VERSION]$version"
+      displayName: "Set JAR_VERSION variable (Windows)"
 
     - script: |
-        mvn help:evaluate -Dexpression=project.version -q -DforceStdout -f myapp/pom.xml > version.txt
-        set /p PROJECT_VERSION=<version.txt
-        echo Project Version is %PROJECT_VERSION%
-        echo ##vso[task.setvariable variable=PROJECT_VERSION]%PROJECT_VERSION%
-      displayName: get_version
-      
-    - script: |
-        echo "Using project version: $(PROJECT_VERSION)"
-      displayName: use_version
+        echo "Using project version: $(JAR_VERSION)"
+      displayName: "Use version"
